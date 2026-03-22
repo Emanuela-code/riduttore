@@ -38,6 +38,7 @@ def sigma_a_goodman(sigma_b, tau, Se, Su):
 def diametro_minimo_wohler(Mb, T, n_rpm, Mat, Se, Su):
     N = 10000 * 3600 * (n_rpm / 60)
 
+    # ----- Ricerca GOODMAN per confronto -----
     d_goodman = None
     for d in np.arange(5, 200, 0.1):
         sigma_b = 32 * Mb / (np.pi * d**3)
@@ -48,18 +49,20 @@ def diametro_minimo_wohler(Mb, T, n_rpm, Mat, Se, Su):
             d_goodman = d
             break
 
+    # ----- Ricerca WÖHLER -----
     for d in np.arange(5, 200, 0.1):
         sigma_b = 32 * Mb / (np.pi * d**3)
         tau = 16 * T / (np.pi * d**3)
         sigma_eq = np.sqrt(sigma_b**2 + 3 * tau**2)
         sigma_lim_W = sigma_a_wohler(N, Mat)
+
         if sigma_eq <= sigma_lim_W:
             return d, d_goodman
 
     return None, None
 
 # ============================================================
-#                        UI SETUP
+#                        STREAMLIT UI
 # ============================================================
 
 st.set_page_config(page_title="Dimensionamento Riduttore",
@@ -69,19 +72,19 @@ st.set_page_config(page_title="Dimensionamento Riduttore",
 st.sidebar.title("⚙️ Parametri di Input")
 
 P = st.sidebar.number_input("Potenza P [kW]", value=5.0)
-n1 = st.sidebar.number_input("Velocità ingresso n1 [rpm]", value=1500.0)
+n1 = st.sidebar.number_input("Velocità ingresso n₁ [rpm]", value=1500.0)
 i = st.sidebar.number_input("Rapporto di riduzione i", value=4.0)
-z1 = st.sidebar.number_input("Numero denti pignone z1", value=20)
+z1 = st.sidebar.number_input("Numero denti pignone z₁", value=20)
 alpha_deg = st.sidebar.number_input("Angolo pressione α [°]", value=20.0)
 eta = st.sidebar.number_input("Efficienza η", value=0.95)
 
-materiale_ruote = st.sidebar.selectbox("Materiale ruote",
-                                       ["20MnCr5", "C45"])
-materiale_alberi = st.sidebar.selectbox("Materiale alberi",
-                                        ["42CrMo4", "C45"])
+materiale_ruote = st.sidebar.selectbox("Materiale ruote", ["20MnCr5", "C45"])
+materiale_alberi = st.sidebar.selectbox("Materiale alberi", ["42CrMo4", "C45"])
 
-st.title("Progetto Riduttore")
+st.title("🔧 Progetto Riduttore — Interfaccia Professionale")
 
+
+# ===== CONTROLLI INPUT =====
 if z1 < 18:
     st.error("❌ Il pignone deve avere almeno 18 denti (evita sottotaglio).")
     st.stop()
@@ -121,6 +124,7 @@ alpha = np.radians(alpha_deg)
 for m in MList:
     b = 10 * m
     d1 = m * z1
+
     Ft = 2 * T1 * 1000 / d1
     Fr = Ft * np.tan(alpha)
 
@@ -158,9 +162,11 @@ Mmax_out = Fr * L_out / 4
 
 dmin1, d_good1 = diametro_minimo_wohler(Mmax_in, T1*1000, n1,
                                         materiale_alberi, Se, Su)
+
 dmin2, d_good2 = diametro_minimo_wohler(Mmax_out, T2*1000, n1/i,
                                         materiale_alberi, Se, Su)
 
+# Diametri minimi costruttivi
 dmin1 = max(dmin1, 20)
 dmin2 = max(dmin2, 25)
 
@@ -176,40 +182,46 @@ delta_in = Fr * L_in**3 / (48 * E * I_in)
 delta_out = Fr * L_out**3 / (48 * E * I_out)
 
 # ============================================================
-# OUTPUT CARDS
+# OUTPUT CARDS (NO unsafe_allow_html in st.info/warning/success)
 # ============================================================
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("### ⚙️ Ingranaggi")
-    st.info(
+    st.markdown(
         f"""
-        <b>z₂ = {z2:.1f}</b><br>
-        <b>Modulo m = {modulo} mm</b><br>
-        <b>Larghezza = {larghezza} mm</b>
+        <div style="padding: 12px; border-radius: 6px; background-color:#e7f3fe;">
+            <b>z₂:</b> {z2:.1f}<br>
+            <b>Modulo m:</b> {modulo} mm<br>
+            <b>Larghezza b:</b> {larghezza} mm
+        </div>
         """,
         unsafe_allow_html=True
     )
 
 with col2:
     st.markdown("### 📈 Forze")
-    st.success(
+    st.markdown(
         f"""
-        <b>Ft = {Ft:.1f} N</b><br>
-        <b>Fr = {Fr:.1f} N</b>
+        <div style="padding: 12px; border-radius: 6px; background-color:#e8ffe8;">
+            <b>Fₜ:</b> {Ft:.1f} N<br>
+            <b>Fᵣ:</b> {Fr:.1f} N
+        </div>
         """,
         unsafe_allow_html=True
     )
 
 with col3:
     st.markdown("### 🔩 Alberi")
-    st.warning(
+    st.markdown(
         f"""
-        <b>d ingresso = {dmin1:.1f} mm</b><br>
-        (Goodman = {d_good1:.1f} mm)<br><br>
-        <b>d uscita = {dmin2:.1f} mm</b><br>
-        (Goodman = {d_good2:.1f} mm)
+        <div style="padding: 12px; border-radius: 6px; background-color:#fff3cd;">
+            <b>d ingresso:</b> {dmin1:.1f} mm 
+            <br>(Goodman = {d_good1:.1f} mm)<br><br>
+            <b>d uscita:</b> {dmin2:.1f} mm
+            <br>(Goodman = {d_good2:.1f} mm)
+        </div>
         """,
         unsafe_allow_html=True
     )
@@ -217,7 +229,7 @@ with col3:
 st.markdown("---")
 
 # ============================================================
-# GRAFICI INTERATTIVI MOMENTO & TAGLIO
+# GRAFICI INTERATTIVI MOMENTO & TAGLIO (Plotly)
 # ============================================================
 
 def diagram_plot(L, Fr, title):
@@ -231,12 +243,10 @@ def diagram_plot(L, Fr, title):
                                         "Momento " + title))
 
     fig.add_trace(go.Scatter(x=x, y=V, mode="lines",
-                             name="Taglio",
                              line=dict(color="blue")),
                   row=1, col=1)
 
     fig.add_trace(go.Scatter(x=x, y=M, mode="lines",
-                             name="Momento",
                              line=dict(color="red")),
                   row=2, col=1)
 
