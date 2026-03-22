@@ -81,7 +81,7 @@ eta = st.sidebar.number_input("Efficienza η", value=0.95)
 materiale_ruote = st.sidebar.selectbox("Materiale ruote", ["20MnCr5", "C45"])
 materiale_alberi = st.sidebar.selectbox("Materiale alberi", ["42CrMo4", "C45"])
 
-st.title("🔧 Progetto Riduttore — Interfaccia Professionale")
+st.title("🔧 Progetto Riduttore")
 
 
 # ===== CONTROLLI INPUT =====
@@ -227,6 +227,53 @@ with col3:
     )
 
 st.markdown("---")
+
+# ============================================================
+#           CARD COPPIE, MOMENTO MAX, FRECCIA MAX
+# ============================================================
+
+st.markdown("## 📘 Risultati aggiuntivi")
+
+colA, colB, colC = st.columns(3)
+
+# ---- COPPIE ----
+with colA:
+    st.markdown("### 🔄 Coppie")
+    st.markdown(
+        f"""
+        <div style="padding: 12px; border-radius: 6px; background-color:#eef7ff;">
+            <b>Coppia ingresso T₁:</b> {T1:.2f} N·m<br>
+            <b>Coppia uscita T₂:</b> {T2:.2f} N·m
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# ---- MOMENTI MAX ----
+with colB:
+    st.markdown("### 📐 Momenti massimi")
+    st.markdown(
+        f"""
+        <div style="padding: 12px; border-radius: 6px; background-color:#fff4e5;">
+            <b>Mmax ingresso:</b> {Mmax_in:.2f} N·mm<br>
+            <b>Mmax uscita:</b> {Mmax_out:.2f} N·mm
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# ---- FRECCE ----
+with colC:
+    st.markdown("### 📉 Deflessioni massime")
+    st.markdown(
+        f"""
+        <div style="padding: 12px; border-radius: 6px; background-color:#e8ffe8;">
+            <b>δ ingresso:</b> {delta_in:.4f} mm<br>
+            <b>δ uscita:</b> {delta_out:.4f} mm
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # ============================================================
 # GRAFICI INTERATTIVI MOMENTO & TAGLIO (Plotly)
