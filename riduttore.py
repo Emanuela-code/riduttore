@@ -274,7 +274,7 @@ with colC:
 # ============================================================
 
 def diagram_plot(L, Fr, title):
-    x = np.arange(0, int(L)+1)
+    x = np.linspace(0, L, 500)
     RA = Fr / 2
     V = np.where(x <= L/2, RA, RA - Fr)
     M = np.where(x <= L/2, RA*x, RA*x - Fr*(x - L/2))
