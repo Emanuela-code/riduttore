@@ -80,7 +80,7 @@ materiale_ruote = st.sidebar.selectbox("Materiale ruote",
 materiale_alberi = st.sidebar.selectbox("Materiale alberi",
                                         ["42CrMo4", "C45"])
 
-st.title("🔧 Progetto Riduttore — Interfaccia Professionale")
+st.title("Progetto Riduttore")
 
 if z1 < 18:
     st.error("❌ Il pignone deve avere almeno 18 denti (evita sottotaglio).")
@@ -183,25 +183,34 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("### ⚙️ Ingranaggi")
-    st.info(f"**z₂ = {z2:.1f}**<br>"
-            f"**Modulo m = {modulo} mm**<br>"
-            f"**Larghezza = {larghezza} mm**",
-            unsafe_allow_html=True)
+    st.info(
+        f"""
+        <b>z₂ = {z2:.1f}</b><br>
+        <b>Modulo m = {modulo} mm</b><br>
+        <b>Larghezza = {larghezza} mm</b>
+        """,
+        unsafe_allow_html=True
+    )
 
 with col2:
     st.markdown("### 📈 Forze")
-    st.success(f"**Ft = {Ft:.1f} N**<br>"
-               f"**Fr = {Fr:.1f} N**",
-               unsafe_allow_html=True)
+    st.success(
+        f"""
+        <b>Ft = {Ft:.1f} N</b><br>
+        <b>Fr = {Fr:.1f} N</b>
+        """,
+        unsafe_allow_html=True
+    )
 
 with col3:
     st.markdown("### 🔩 Alberi")
     st.warning(
-        f"<b>d_in = {dmin1:.1f} mm</b>"
-        f"<br>(Goodman = {d_good1:.1f} mm)"
-        f"<br><br>"
-        f"<b>d_out = {dmin2:.1f} mm</b>"
-        f"<br>(Goodman = {d_good2:.1f} mm)",
+        f"""
+        <b>d ingresso = {dmin1:.1f} mm</b><br>
+        (Goodman = {d_good1:.1f} mm)<br><br>
+        <b>d uscita = {dmin2:.1f} mm</b><br>
+        (Goodman = {d_good2:.1f} mm)
+        """,
         unsafe_allow_html=True
     )
 
