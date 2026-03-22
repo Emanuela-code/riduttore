@@ -229,16 +229,13 @@ with col3:
 st.markdown("---")
 
 # ============================================================
-#           CARD COPPIE, MOMENTO MAX, FRECCIA MAX
+#           CARD COPPIE, MOMENTO MAX, FRECCIA MAX (PULITE)
 # ============================================================
-
-st.markdown("## 📘 Risultati aggiuntivi")
 
 colA, colB, colC = st.columns(3)
 
 # ---- COPPIE ----
 with colA:
-    st.markdown("### 🔄 Coppie")
     st.markdown(
         f"""
         <div style="padding: 12px; border-radius: 6px; background-color:#eef7ff;">
@@ -251,7 +248,6 @@ with colA:
 
 # ---- MOMENTI MAX ----
 with colB:
-    st.markdown("### 📐 Momenti massimi")
     st.markdown(
         f"""
         <div style="padding: 12px; border-radius: 6px; background-color:#fff4e5;">
@@ -264,7 +260,6 @@ with colB:
 
 # ---- FRECCE ----
 with colC:
-    st.markdown("### 📉 Deflessioni massime")
     st.markdown(
         f"""
         <div style="padding: 12px; border-radius: 6px; background-color:#e8ffe8;">
@@ -274,7 +269,6 @@ with colC:
         """,
         unsafe_allow_html=True
     )
-
 # ============================================================
 # GRAFICI INTERATTIVI MOMENTO & TAGLIO (Plotly)
 # ============================================================
