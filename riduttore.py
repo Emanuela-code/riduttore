@@ -183,21 +183,27 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("### ⚙️ Ingranaggi")
-    st.info(f"**z₂ = {z2:.1f}**\n\n"
-            f"**Modulo m = {modulo}** mm\n\n"
-            f"**Larghezza b = {larghezza} mm**")
+    st.info(f"**z₂ = {z2:.1f}**<br>"
+            f"**Modulo m = {modulo} mm**<br>"
+            f"**Larghezza = {larghezza} mm**",
+            unsafe_allow_html=True)
 
 with col2:
     st.markdown("### 📈 Forze")
-    st.success(f"**Ft = {Ft:.1f} N**\n\n"
-               f"**Fr = {Fr:.1f} N**")
+    st.success(f"**Ft = {Ft:.1f} N**<br>"
+               f"**Fr = {Fr:.1f} N**",
+               unsafe_allow_html=True)
 
 with col3:
     st.markdown("### 🔩 Alberi")
-    st.warning(f"**d_ingresso = {dmin1:.1f} mm**  
-                (Goodman={d_good1:.1f} mm)\n\n"
-               f"**d_uscita = {dmin2:.1f} mm**  
-                (Goodman={d_good2:.1f} mm)")
+    st.warning(
+        f"<b>d_in = {dmin1:.1f} mm</b>"
+        f"<br>(Goodman = {d_good1:.1f} mm)"
+        f"<br><br>"
+        f"<b>d_out = {dmin2:.1f} mm</b>"
+        f"<br>(Goodman = {d_good2:.1f} mm)",
+        unsafe_allow_html=True
+    )
 
 st.markdown("---")
 
@@ -206,7 +212,7 @@ st.markdown("---")
 # ============================================================
 
 def diagram_plot(L, Fr, title):
-    x = np.arange(0, L+1)
+    x = np.arange(0, int(L)+1)
     RA = Fr / 2
     V = np.where(x <= L/2, RA, RA - Fr)
     M = np.where(x <= L/2, RA*x, RA*x - Fr*(x - L/2))
