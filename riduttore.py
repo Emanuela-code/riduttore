@@ -268,6 +268,34 @@ with colT2:
 
 st.markdown("---")
 
+# ============================================================
+#   CARD FRECCIA MASSIMA (δ_in e δ_out)
+# ============================================================
+
+colF1, colF2 = st.columns(2)
+
+with colF1:
+    st.markdown(
+        f"""
+        <div style="padding: 12px; border-radius: 6px; background-color:#f0f0ff;">
+            <b>Freccia ingresso δ₁:</b> {delta_in:.4f} mm
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+with colF2:
+    st.markdown(
+        f"""
+        <div style="padding: 12px; border-radius: 6px; background-color:#f0fff0;">
+            <b>Freccia uscita δ₂:</b> {delta_out:.4f} mm
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+st.markdown("---")
+
 
 # ============================================================
 # GRAFICI MOMENTO E TAGLIO
