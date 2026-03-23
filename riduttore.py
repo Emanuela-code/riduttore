@@ -163,8 +163,8 @@ z2 = int(round(i * z1))
 # LUCI
 # ============================================================
 
-L_in = larghezza + 50
-L_out = larghezza + 70
+L_in = larghezza + 100
+L_out = larghezza + 140
 
 
 # ============================================================
@@ -233,6 +233,34 @@ with col3:
         <div style="padding: 12px; border-radius: 6px; background-color:#fff3cd;">
             <b>d ingresso:</b> {dmin1} mm<br>
             <b>d uscita:</b> {dmin2} mm
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+st.markdown("---")
+
+# ============================================================
+#   CARD COPPIE (T1 e T2)
+# ============================================================
+
+colT1, colT2 = st.columns(2)
+
+with colT1:
+    st.markdown(
+        f"""
+        <div style="padding: 12px; border-radius: 6px; background-color:#e0f7ff;">
+            <b>Coppia ingresso T₁:</b> {T1:.2f} N·m
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+with colT2:
+    st.markdown(
+        f"""
+        <div style="padding: 12px; border-radius: 6px; background-color:#e0ffe6;">
+            <b>Coppia uscita T₂:</b> {T2:.2f} N·m
         </div>
         """,
         unsafe_allow_html=True
