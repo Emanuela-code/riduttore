@@ -140,7 +140,7 @@ for m in MList:
     larghezza = b
     break
 
-z2 = i * z1
+z2 = int(round(i * z1))
 
 # ============================================================
 # LUCI REALISTICHE
@@ -213,18 +213,17 @@ with col2:
     )
 
 with col3:
-    st.markdown("### 🔩 Alberi")
+    st.markdown("### Alberi")
     st.markdown(
         f"""
         <div style="padding: 12px; border-radius: 6px; background-color:#fff3cd;">
-            <b>d ingresso:</b> {dmin1:.1f} mm 
-            <br>(Goodman = {d_good1:.1f} mm)<br><br>
+            <b>d ingresso:</b> {dmin1:.1f} mm<br>
             <b>d uscita:</b> {dmin2:.1f} mm
-            <br>(Goodman = {d_good2:.1f} mm)
         </div>
         """,
         unsafe_allow_html=True
     )
+``
 
 st.markdown("---")
 
