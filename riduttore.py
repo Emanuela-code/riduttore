@@ -226,7 +226,7 @@ with col2:
     )
 
 with col3:
-    st.markdown("### 🔩 Alberi")
+    st.markdown("### Alberi")
     st.markdown(
         f"""
         <div style="padding: 12px; border-radius: 6px; background-color:#fff3cd;">
