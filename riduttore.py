@@ -39,40 +39,36 @@ def diametro_minimo(Mb, T, n_rpm, Mat, Se, Su, Sy,
         60,63,65,70,75,80,85,90,95,100
     ])
 
-    # 1) STATICA (Von Mises)
+    # 1) Verifica statica (Von Mises)
     for d in np.arange(5, 200, 0.1):
-
         sigma_b = 32 * Mb / (np.pi * d**3)
         tau = 16 * T / (np.pi * d**3)
-
         sigma_vm = np.sqrt(sigma_b**2 + 3 * tau**2)
 
         if sigma_vm <= Sy / n_statica:
             d_stat = d
             break
 
-    # 2) STANDARDIZZA
+    # 2) Standardizzazione al diametro ISO
     d_norm = diametri_norm[diametri_norm >= d_stat][0]
 
-    # 3) FATICA (Goodman modificato)
+    # 3) Verifica a fatica (Goodman modificato)
     N = 10000 * 3600 * (n_rpm / 60)
     sigma_alt_lim = sigma_a_wohler(N, Mat)
 
     for d in diametri_norm[diametri_norm >= d_norm]:
-
         sigma_b = 32 * Mb / (np.pi * d**3)
         tau_nom = 16 * T / (np.pi * d**3)
 
-        sigma_a = Kf * sigma_b                    # alternata
-        sigma_m = np.sqrt(3) * Kt * tau_nom       # media
+        sigma_a = Kf * sigma_b
+        sigma_m = np.sqrt(3) * Kt * tau_nom
 
         cond = (sigma_a / sigma_alt_lim) + (sigma_m / Su)
 
         if cond <= 1 / n_fatica:
-            return d
+            return d, True  # diametro ISO che verifica fatica
 
-    return None
-
+    return d_norm, False  # diametro statico OK, fatica NO
 
 # ============================================================
 #                        STREAMLIT UI
@@ -92,14 +88,13 @@ alpha_deg = st.sidebar.number_input("Angolo pressione α [°]", value=20.0)
 eta = st.sidebar.number_input("Efficienza η", value=0.95)
 
 materiale_ruote = st.sidebar.selectbox("Materiale ruote", ["20MnCr5", "C45"])
-materiale_alberi = st.sidebar.selectbox("Materiale alberi", ["42CrMo4", "C45"])
+materiale_algeri = st.sidebar.selectbox("Materiale alberi", ["42CrMo4", "C45"])
 
-st.title("🔧 Progetto Riduttore")
+st.title("🔧 Progetto Riduttore — GUI Professionale")
 
 if z1 < 18:
     st.error("❌ Il pignone deve avere almeno 18 denti.")
     st.stop()
-
 
 # ============================================================
 # MATERIALI
@@ -121,14 +116,12 @@ else:
     Su = 600
     Sy = 370
 
-
 # ============================================================
 # COPPIE
 # ============================================================
 
-T1 = 9550 * P / n1            # N·m
-T2 = T1 * i * eta             # N·m
-
+T1 = 9550 * P / n1              # N·m
+T2 = T1 * i * eta               # N·m
 
 # ============================================================
 # MODULO (Lewis + Hertz)
@@ -158,14 +151,12 @@ for m in MList:
 
 z2 = int(round(i * z1))
 
-
 # ============================================================
 # LUCI
 # ============================================================
 
-L_in = larghezza + 100
-L_out = larghezza + 140
-
+L_in = larghezza + 40
+L_out = larghezza + 80
 
 # ============================================================
 # MOMENTI MAX
@@ -174,14 +165,12 @@ L_out = larghezza + 140
 Mmax_in = Fr * L_in / 4
 Mmax_out = Fr * L_out / 4
 
-
 # ============================================================
-# DIAMETRI FINALI
+# DIAMETRI (statica → ISO → fatica)
 # ============================================================
 
-dmin1 = diametro_minimo(Mmax_in, T1*1000, n1, materiale_alberi, Se, Su, Sy)
-dmin2 = diametro_minimo(Mmax_out, T2*1000, n1/i, materiale_alberi, Se, Su, Sy)
-
+dmin1, fatica1 = diametro_minimo(Mmax_in, T1*1000, n1, materiale_alberi, Se, Su, Sy)
+dmin2, fatica2 = diametro_minimo(Mmax_out, T2*1000, n1/i, materiale_alberi, Se, Su, Sy)
 
 # ============================================================
 # FRECCE
@@ -193,7 +182,6 @@ I_out = np.pi * dmin2**4 / 64
 
 delta_in = Fr * L_in**3 / (48 * E * I_in)
 delta_out = Fr * L_out**3 / (48 * E * I_out)
-
 
 # ============================================================
 # OUTPUT CARDS
@@ -227,7 +215,7 @@ with col2:
     )
 
 with col3:
-    st.markdown("### Alberi")
+    st.markdown("### ⦾ Alberi")
     st.markdown(
         f"""
         <div style="padding: 12px; border-radius: 6px; background-color:#fff3cd;">
@@ -241,7 +229,7 @@ with col3:
 st.markdown("---")
 
 # ============================================================
-#   CARD COPPIE (T1 e T2)
+#  CARD COPPIE
 # ============================================================
 
 colT1, colT2 = st.columns(2)
@@ -269,7 +257,7 @@ with colT2:
 st.markdown("---")
 
 # ============================================================
-#   CARD FRECCIA MASSIMA (δ_in e δ_out)
+#   CARD FRECCIA MASSIMA
 # ============================================================
 
 colF1, colF2 = st.columns(2)
@@ -296,13 +284,40 @@ with colF2:
 
 st.markdown("---")
 
+# ============================================================
+#   CARD VERIFICA FATICA (UNICA E SEPARATA)
+# ============================================================
+
+st.markdown("### 🧪 Verifica a fatica (Goodman modificato)")
+
+if fatica1 and fatica2:
+    st.markdown(
+        """
+        <div style="padding: 15px; border-radius: 8px; background-color:#d5fdd5; font-size: 18px;">
+            <b>✓ FATICA VERIFICATA</b><br>
+            Entrambi gli alberi soddisfano la verifica a fatica.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+else:
+    st.markdown(
+        """
+        <div style="padding: 15px; border-radius: 8px; background-color:#ffd6d6; font-size: 18px;">
+            <b>✘ FATICA NON VERIFICATA</b><br>
+            Aumentare i diametri ISO fino alla verifica.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+st.markdown("---")
 
 # ============================================================
 # GRAFICI MOMENTO E TAGLIO
 # ============================================================
 
 def diagram_plot(L, Fr, title):
-
     x = np.linspace(0, L, 500)
     RA = Fr / 2
 
@@ -323,7 +338,6 @@ def diagram_plot(L, Fr, title):
 
     fig.update_layout(height=600, showlegend=False)
     return fig
-
 
 st.header("📊 Diagrammi di Taglio e Momento")
 st.plotly_chart(diagram_plot(L_in, Fr, "— Albero Ingresso"))
