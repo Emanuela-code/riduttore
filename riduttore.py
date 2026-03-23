@@ -3,7 +3,11 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-# ========================================================= materiale):# ============================================================
+# ============================================================
+#                CURVA DI WÖHLER REALE
+# ============================================================
+
+def sigma_a_wohler(N, materiale):
     if materiale == "42CrMo4":
         sigma_f = 1150
         b = -0.085
@@ -22,25 +26,24 @@ from plotly.subplots import make_subplots
 
 
 # ============================================================
-#      DIAMETRO MINIMO (1) STATICA + (2) STANDARD + (3) FATICA
+#  DIAMETRO MINIMO (1) STATICA + (2) STANDARD + (3) FATICA
 # ============================================================
 
 def diametro_minimo(Mb, T, n_rpm, Mat, Se, Su, Sy,
                     Kf=1.6, Kt=1.3,
                     n_statica=2.0, n_fatica=1.5):
 
-    # diametri standard ISO
     diametri_norm = np.array([
         8,10,12,15,17,20,22,25,28,30,
         32,35,38,40,42,45,48,50,55,56,
         60,63,65,70,75,80,85,90,95,100
     ])
 
-    # ---- 1) VERIFICA STATICA (Von Mises) ----
+    # 1) STATICA (Von Mises)
     for d in np.arange(5, 200, 0.1):
 
-        sigma_b = 32 * Mb / (np.pi * d**3)      # flessione
-        tau = 16 * T / (np.pi * d**3)           # torsione
+        sigma_b = 32 * Mb / (np.pi * d**3)
+        tau = 16 * T / (np.pi * d**3)
 
         sigma_vm = np.sqrt(sigma_b**2 + 3 * tau**2)
 
@@ -48,31 +51,27 @@ def diametro_minimo(Mb, T, n_rpm, Mat, Se, Su, Sy,
             d_stat = d
             break
 
-    # ---- 2) STANDARDIZZA ----
+    # 2) STANDARDIZZA
     d_norm = diametri_norm[diametri_norm >= d_stat][0]
 
-    # ---- 3) VERIFICA A FATICA (Goodman modificato) ----
-
-    N = 10000 * 3600 * (n_rpm / 60)             # cicli per 10k ore
-    sigma_alt_lim = sigma_a_wohler(N, Mat)      # limite alternato flessione
+    # 3) FATICA (Goodman modificato)
+    N = 10000 * 3600 * (n_rpm / 60)
+    sigma_alt_lim = sigma_a_wohler(N, Mat)
 
     for d in diametri_norm[diametri_norm >= d_norm]:
 
         sigma_b = 32 * Mb / (np.pi * d**3)
         tau_nom = 16 * T / (np.pi * d**3)
 
-        # parte alternata (flessione)
-        sigma_a = Kf * sigma_b
-
-        # parte media (torsione)
-        sigma_m = np.sqrt(3) * Kt * tau_nom
+        sigma_a = Kf * sigma_b                    # alternata
+        sigma_m = np.sqrt(3) * Kt * tau_nom       # media
 
         cond = (sigma_a / sigma_alt_lim) + (sigma_m / Su)
 
         if cond <= 1 / n_fatica:
             return d
 
-    return None  # diametro non verificato
+    return None
 
 
 # ============================================================
@@ -97,11 +96,10 @@ materiale_alberi = st.sidebar.selectbox("Materiale alberi", ["42CrMo4", "C45"])
 
 st.title("🔧 Progetto Riduttore — GUI Professionale")
 
-
-# ===== CONTROLLI INPUT =====
 if z1 < 18:
     st.error("❌ Il pignone deve avere almeno 18 denti.")
     st.stop()
+
 
 # ============================================================
 # MATERIALI
@@ -110,26 +108,27 @@ if z1 < 18:
 if materiale_ruote == "20MnCr5":
     sigmaF_amm = 300
     sigmaH_amm = 1400
-elif materiale_ruote == "C45":
+else:
     sigmaF_amm = 180
     sigmaH_amm = 850
-
 
 if materiale_alberi == "42CrMo4":
     Se = 450
     Su = 950
     Sy = 850
-elif materiale_alberi == "C45":
+else:
     Se = 250
     Su = 600
     Sy = 370
+
 
 # ============================================================
 # COPPIE
 # ============================================================
 
-T1 = 9550 * P / n1
-T2 = T1 * i * eta
+T1 = 9550 * P / n1            # N·m
+T2 = T1 * i * eta             # N·m
+
 
 # ============================================================
 # MODULO (Lewis + Hertz)
@@ -157,30 +156,32 @@ for m in MList:
     larghezza = b
     break
 
-# z2 standardizzato
 z2 = int(round(i * z1))
 
 
 # ============================================================
-# LUCI REALISTICHE
+# LUCI
 # ============================================================
 
 L_in = larghezza + 50
 L_out = larghezza + 70
 
+
 # ============================================================
-# MOMENTI FLETTENTI MAX
+# MOMENTI MAX
 # ============================================================
 
 Mmax_in = Fr * L_in / 4
 Mmax_out = Fr * L_out / 4
 
+
 # ============================================================
-# DIAMETRI COMPLETI
+# DIAMETRI FINALI
 # ============================================================
 
 dmin1 = diametro_minimo(Mmax_in, T1*1000, n1, materiale_alberi, Se, Su, Sy)
 dmin2 = diametro_minimo(Mmax_out, T2*1000, n1/i, materiale_alberi, Se, Su, Sy)
+
 
 # ============================================================
 # FRECCE
@@ -195,7 +196,7 @@ delta_out = Fr * L_out**3 / (48 * E * I_out)
 
 
 # ============================================================
-# OUTPUT (CARDS)
+# OUTPUT CARDS
 # ============================================================
 
 col1, col2, col3 = st.columns(3)
@@ -241,10 +242,11 @@ st.markdown("---")
 
 
 # ============================================================
-# GRAFICI INTERATTIVI MOMENTO & TAGLIO (Plotly)
+# GRAFICI MOMENTO E TAGLIO
 # ============================================================
 
 def diagram_plot(L, Fr, title):
+
     x = np.linspace(0, L, 500)
     RA = Fr / 2
 
@@ -265,6 +267,7 @@ def diagram_plot(L, Fr, title):
 
     fig.update_layout(height=600, showlegend=False)
     return fig
+
 
 st.header("📊 Diagrammi di Taglio e Momento")
 st.plotly_chart(diagram_plot(L_in, Fr, "— Albero Ingresso"))
