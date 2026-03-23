@@ -88,9 +88,9 @@ alpha_deg = st.sidebar.number_input("Angolo pressione α [°]", value=20.0)
 eta = st.sidebar.number_input("Efficienza η", value=0.95)
 
 materiale_ruote = st.sidebar.selectbox("Materiale ruote", ["20MnCr5", "C45"])
-materiale_algeri = st.sidebar.selectbox("Materiale alberi", ["42CrMo4", "C45"])
+materiale_alberi = st.sidebar.selectbox("Materiale alberi", ["42CrMo4", "C45"])
 
-st.title("🔧 Progetto Riduttore — GUI Professionale")
+st.title("🔧 Progetto Riduttore")
 
 if z1 < 18:
     st.error("❌ Il pignone deve avere almeno 18 denti.")
@@ -155,8 +155,8 @@ z2 = int(round(i * z1))
 # LUCI
 # ============================================================
 
-L_in = larghezza + 40
-L_out = larghezza + 80
+L_in = larghezza + 100
+L_out = larghezza + 140
 
 # ============================================================
 # MOMENTI MAX
